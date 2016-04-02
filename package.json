@@ -1,0 +1,16 @@
+{
+  "name": "poi-plugin-response-saver",
+  "version": "0.0.1",
+  "main": "index.coffee",
+  "author":
+  {
+    "name": "Kagami Seki",
+    "url": "https://kagami.moe"
+  },
+  "poiPlugin":
+  {
+    "title": "Game Response Saver",
+    "description": "Saves Game Response for further analysis",
+    "icon": "fa/file-text-o",
+  }
+}
