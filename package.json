@@ -12,5 +12,6 @@
     "title": "Game Response Saver",
     "description": "Saves Game Response for further analysis",
     "icon": "fa/file-text-o",
+    "priority": 100
   }
 }

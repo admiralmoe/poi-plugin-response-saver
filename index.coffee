@@ -11,7 +11,8 @@ SAVE_PATH = path.join APPDATA_PATH, "response-saver"
 fs.ensureDir SAVE_PATH, callback
 
 handleResponse = (e) ->
-  savePath = path.join SAVE_PATH, (new Date).getTime().toString()+".json"
+  nowTime = (new Date).getTime().toString()
+  savePath = path.join SAVE_PATH, e.detail.path, nowTime + ".json"
   fs.outputJson savePath, e.detail, callback
 
 module.exports =
