@@ -2,16 +2,18 @@
   "name": "poi-plugin-response-saver",
   "version": "0.0.1",
   "main": "index.coffee",
-  "author":
-  {
+  "author": {
     "name": "Kagami Seki",
     "url": "https://kagami.moe"
   },
-  "poiPlugin":
-  {
+  "poiPlugin": {
     "title": "Game Response Saver",
     "description": "Saves Game Response for further analysis",
     "icon": "fa/file-text-o",
     "priority": 100
+  },
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-preset-es2017": "^6.16.0"
   }
 }
