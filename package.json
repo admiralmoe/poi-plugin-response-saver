@@ -10,7 +10,10 @@
     "title": "Game Response Saver",
     "description": "Saves Game Response for further analysis",
     "icon": "fa/file-text-o",
-    "priority": 100
+    "priority": 100,
+    "apiVer":{
+      "6.99.99": "0.1.0"
+    }
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",

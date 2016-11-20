@@ -9,7 +9,7 @@ const SAVE_PATH = path.join(APPDATA_PATH, PLG_NAME)
 const webview = $('webview')
 
 const callback = (err) => {
-  if(err != null) console.log(err)
+  if (err != null) console.log(err)
 }
 
 
@@ -35,7 +35,9 @@ const handleResourceResponse = (e) => {
   const {httpResponseCode, newURL, originalURL} = e
   let text = ''
 
+  if (newURL==null || originalURL == null) return
   if (_.includes(newURL, 'ShimakazeGo')) return
+
 
   text = (newURL == originalURL ? 
     `${nowTime}[${httpResponseCode}] = ${decodeURI(newURL)}\n` : 
