@@ -2,13 +2,12 @@ import path from 'path-extra'
 import { promisifyAll } from 'bluebird'
 import _ from 'lodash'
 
+const jsondiffpatch = require('jsondiffpatch').create()
 const fs = promisifyAll(require('fs-extra'))
 
 const { APPDATA_PATH, $, dbg } = window
 const PLG_NAME = 'response-saver'
 const SAVE_PATH = path.join(APPDATA_PATH, PLG_NAME)
-
-const webview = $('webview')
 
 const callback = (err) => {
   if (err != null) {
@@ -24,14 +23,25 @@ const RESOURCE_LOG_PATH = path.join(SAVE_PATH, 'resource_timeline.log')
 fs.ensureFileSync(LOG_PATH)
 fs.ensureFileSync(RESOURCE_LOG_PATH)
 
+let store
 
 const handleGameResponse = (e) => {
   const nowTime = (new Date()).getTime().toString()
   const savePath = path.join(SAVE_PATH, e.detail.path, `${nowTime}.json`)
   const storePath = path.join(SAVE_PATH, 'poi-store', `${nowTime}.json`)
+  const storeDiffPath = path.join(SAVE_PATH, 'poi-store', `${nowTime}.diff.json`)
   fs.outputJson(savePath, e.detail, callback)
-  fs.outputJson(storePath, window.getStore(), callback)
   fs.appendFile(LOG_PATH, `${nowTime} = ${e.detail.path}\n`, callback)
+
+  if (!store) {
+    store = window.getStore()
+    fs.outputJson(storePath, store, callback)
+  } else {
+    const newStore = window.getStore()
+    const diff = jsondiffpatch.diff(store, newStore)
+    fs.outputJson(storeDiffPath, diff, callback)
+    store = newStore
+  }
 }
 
 // const handleResourceResponse = (e) => {
