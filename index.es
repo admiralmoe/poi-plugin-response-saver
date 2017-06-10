@@ -15,6 +15,7 @@ const callback = (err) => {
   }
 }
 
+const purify = obj => JSON.parse(JSON.stringify(obj))
 
 fs.ensureDirSync(SAVE_PATH)
 
@@ -34,10 +35,10 @@ const handleGameResponse = (e) => {
   fs.appendFile(LOG_PATH, `${nowTime} = ${e.detail.path}\n`, callback)
 
   if (!store) {
-    store = window.getStore()
+    store = purify(window.getStore())
     fs.outputJson(storePath, store, callback)
   } else {
-    const newStore = window.getStore()
+    const newStore = purify(window.getStore())
     const diff = jsondiffpatch.diff(store, newStore)
     fs.outputJson(storeDiffPath, diff, callback)
     store = newStore
