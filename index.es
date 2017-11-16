@@ -1,21 +1,17 @@
 import path from 'path-extra'
-import { promisifyAll } from 'bluebird'
+import fs from 'fs-extra'
 import _ from 'lodash'
 
 const jsondiffpatch = require('jsondiffpatch').create()
-const fs = promisifyAll(require('fs-extra'))
 
 const { APPDATA_PATH, $, dbg } = window
 const PLG_NAME = 'response-saver'
 const SAVE_PATH = path.join(APPDATA_PATH, PLG_NAME)
 
-const callback = (err) => {
-  if (err != null) {
-    console.log(err)
-  }
-}
+const STORE_KEYS = ['battle', 'const', 'info', 'sortie']
 
-const purify = obj => JSON.parse(JSON.stringify(obj))
+
+const purify = obj => JSON.parse(JSON.stringify(_.pick(obj, STORE_KEYS)))
 
 fs.ensureDirSync(SAVE_PATH)
 
@@ -26,22 +22,32 @@ fs.ensureFileSync(RESOURCE_LOG_PATH)
 
 let store
 
-const handleGameResponse = (e) => {
+const saveStoreDiff = (storePath, storeDiffPath) => {
+  if (!store) {
+    store = purify(window.getStore())
+    return fs.outputJson(storePath, store)
+  }
+  const newStore = purify(window.getStore())
+  const diff = jsondiffpatch.diff(store, newStore)
+  store = newStore
+  if (diff) {
+    return fs.outputJson(storeDiffPath, diff)
+  }
+}
+
+const handleGameResponse = async (e) => {
   const nowTime = (new Date()).getTime().toString()
   const savePath = path.join(SAVE_PATH, e.detail.path, `${nowTime}.json`)
   const storePath = path.join(SAVE_PATH, 'poi-store', `${nowTime}.json`)
   const storeDiffPath = path.join(SAVE_PATH, 'poi-store', `${nowTime}.diff.json`)
-  fs.outputJson(savePath, e.detail, callback)
-  fs.appendFile(LOG_PATH, `${nowTime} = ${e.detail.path}\n`, callback)
-
-  if (!store) {
-    store = purify(window.getStore())
-    fs.outputJson(storePath, store, callback)
-  } else {
-    const newStore = purify(window.getStore())
-    const diff = jsondiffpatch.diff(store, newStore)
-    fs.outputJson(storeDiffPath, diff, callback)
-    store = newStore
+  try {
+    await Promise.all([
+      fs.outputJson(savePath, e.detail),
+      fs.appendFile(LOG_PATH, `${nowTime} = ${e.detail.path}\n`),
+      saveStoreDiff(storePath, storeDiffPath),
+    ])
+  } catch (err) {
+    console.error(err.stack)
   }
 }
 
@@ -68,7 +74,6 @@ export default {
   pluginDidLoad: () => {
     dbg.enable()
     dbg.enableExtra('gameResponse')
-    // dbg.enableExtra ('moduleRenderCost')
     window.addEventListener('game.response', handleGameResponse)
     // if (webview != null) webview.addEventListener('did-get-response-details', handleResourceResponse)
   },
